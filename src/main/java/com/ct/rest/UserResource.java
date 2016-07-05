@@ -36,10 +36,10 @@ public class UserResource {
 	
 	@RequestMapping(value = "/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	public ResponseEntity<User> registerUser(@RequestBody UserDAO newUser) throws AuthenticationException {
+		User userCreated=userService.createUser(newUser);
 		System.out.println("Successfully registered user: " + newUser.getUserName());
-		User user = userService.getUser();
-		if (user != null)
-			return new ResponseEntity<User>(user, HttpStatus.OK);
+		if (userCreated != null)
+			return new ResponseEntity<User>(userCreated, HttpStatus.OK);
 		else
 			throw new AuthenticationException("Error creating new user");
 		

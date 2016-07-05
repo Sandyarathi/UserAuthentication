@@ -1,5 +1,7 @@
 package com.ct.service;
 
+import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -14,8 +16,9 @@ import com.ct.model.User;
 public class UserService {
 
 	   private BCryptPasswordEncoder passwordEncoder;
+	   public static HashMap<String,UserDAO> userList= new HashMap<String,UserDAO>();
 
-	public UserService () {
+	public UserService() { 
 		 passwordEncoder = new BCryptPasswordEncoder();
 	}
 	@Autowired
@@ -27,39 +30,29 @@ public class UserService {
 		authHelper.saveToken(token);
 		return token;
 	}
-	
-	public User getUser() {
-		//get User from Mongo
-		UserDAO userDAO = new UserDAO();
-		userDAO.setFirstName("Shailesh");
-		userDAO.setLastName("Samudrala");
-		userDAO.setUserName("shailesh");
-		userDAO.setPassword("shailu");
-
-		return generateUser(userDAO, null);
-	}
 
 	public User getAuthenticatedUser() {
 		String userName = authHelper.getUsername();
 		String token = createAuthToken();
-
-		// get UserDAO from Mongo
-		UserDAO userDAO = new UserDAO();
-		userDAO.setFirstName("Sandhya");
-		userDAO.setLastName("Das");
-		userDAO.setUserName("sandhya");
-		userDAO.setPassword("sandy");
-
-		return generateUser(userDAO, token);
+		UserDAO userFromStoredList=userList.get(userName);
+		User user=new User();
+		user.setFirstName(userFromStoredList.getFirstName());
+		user.setLastName(userFromStoredList.getLastName());
+		user.setUserName(userFromStoredList.getUserName());
+		user.setToken(token);
+		return user;
 
 	}
 
-	private User generateUser(UserDAO userDAO, String token) {
-		User user = new User();
-		user.setFirstName(userDAO.getFirstName());
-		user.setLastName(userDAO.getLastName());
-		user.setUserName(userDAO.getUserName());
-		user.setToken(token);
+	
+	public User createUser(UserDAO newUserDAO) {
+		//int generatedId=generateID();
+		userList.put(newUserDAO.getUserName(), newUserDAO);
+		User user=new User();
+		user.setFirstName(newUserDAO.getFirstName());
+		user.setLastName(newUserDAO.getLastName());
+		user.setUserName(newUserDAO.getUserName());
+		user.setToken(null);
 		return user;
 	}
 

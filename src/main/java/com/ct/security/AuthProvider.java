@@ -8,6 +8,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import com.ct.dao.UserDAO;
+import com.ct.model.User;
+import com.ct.service.UserService;
 
 @Service
 public class AuthProvider implements AuthenticationProvider {
@@ -15,9 +17,11 @@ public class AuthProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
+		System.out.println("in authprovider");
 		String userName = authentication.getName();
 		String password = authentication.getCredentials().toString();
 		if (userName != null && password != null) {
+			System.out.println("Am I getting error here?");
 			UserDAO userDAO = getUserDAO(userName);
 			if (!userDAO.getPassword().equals(password)) {
 				throw new BadCredentialsException("Password did not match");
@@ -30,17 +34,15 @@ public class AuthProvider implements AuthenticationProvider {
 
 	private UserDAO getUserDAO(String userName) {
 		// get UserDAO from Mongo
-		UserDAO userDAO = new UserDAO();
-
-		// test code, delete after mongo implementation
-		if (userName.equals("sandhya")) {
-			userDAO.setFirstName("Sandhya");
-			userDAO.setLastName("Das");
-			userDAO.setUserName("sandhya");
-			userDAO.setPassword("sandy");
+		UserDAO userDAO = UserService.userList.get(userName);
+		if(userDAO!=null)
 			return userDAO;
+		else{
+			System.out.println("Could not retrieve from list");
+			return null;
 		}
-		return null;
+		
+		
 	}
 
 	@Override
